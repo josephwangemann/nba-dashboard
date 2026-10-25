@@ -1,0 +1,15 @@
+:root {
+  color-scheme: dark;
+  font-family: 'Courier New', Courier, monospace;
+  color: #f7f0da;
+  background: #171329;
+  font-synthesis: none;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-width: 320px;
+  background-image: radial-gradient(#605079 1px, transparent 1px);
+  background-size: 12px 12px;
+}
+::selection { color: #171329; background: #dfff65; }
