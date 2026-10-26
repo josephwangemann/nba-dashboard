@@ -21,7 +21,6 @@ export const standingsFreshness = (games: ScheduledGame[], now: number, previous
   const finalsObservedAt = previous?.finalIds === finalIds ? previous.finalsObservedAt : now
   const unsettled = games.some(game => !game.completed && !['STATUS_POSTPONED', 'STATUS_CANCELED', 'STATUS_CANCELLED'].includes(game.name) && (game.state === 'in' || game.startsAt <= now))
   const nextStart = Math.min(...games.filter(game => !game.completed && game.startsAt > now && game.name === 'STATUS_SCHEDULED').map(game => game.startsAt))
-  // A newly observed final gets a grace period for ESPN to update standings.
   const settling = finalIds !== '' && now < finalsObservedAt + SETTLE_BUFFER
   return {
     finalIds,

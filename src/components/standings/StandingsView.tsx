@@ -1,3 +1,4 @@
+import ProfileLink from '../shared/ProfileLink'
 import { useStandings } from '../../api/queries'
 
 const StandingsView = () => {
@@ -17,7 +18,7 @@ const StandingsView = () => {
           <caption className="sr-only">{conference.name} standings</caption>
           <thead><tr><th scope="col">TEAM</th><th scope="col">W</th><th scope="col">L</th><th scope="col">PCT</th><th scope="col">GB</th><th scope="col">STRK</th></tr></thead>
           <tbody>{conference.teams.map(team => <tr key={team.id}>
-            <th scope="row"><span className="standing-rank">{team.rank || '—'}</span>{team.name}</th>
+            <th scope="row"><span className="standing-rank">{team.rank || '—'}</span><ProfileLink type="team" id={team.id}>{team.name}</ProfileLink></th>
             <td>{team.wins}</td><td>{team.losses}</td><td>{team.percentage}</td><td>{team.gamesBehind}</td><td>{team.streak}</td>
           </tr>)}</tbody>
         </table>

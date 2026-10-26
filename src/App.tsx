@@ -1,48 +1,45 @@
-import { useState } from 'react'
-import './styles/App.css'
-import GameDetails from './components/games/GameDetails'
-import ScoreboardView from './components/games/ScoreboardView'
+import { useEffect } from 'react'
+import BrowseView from './components/navigation/BrowseView'
+import GamePage from './components/games/GamePage'
+import PlayerProfile from './components/profiles/PlayerProfile'
 import SiteHeader from './components/shared/SiteHeader'
-import DatePicker from './components/shared/DatePicker'
-import StandingsView from './components/standings/StandingsView'
-import StatsView from './components/stats/StatsView'
-import type { Game } from './models/scoreboard'
-import { useScoreboard } from './api/queries'
+import TeamProfile from './components/profiles/TeamProfile'
+import { navigate, useAppRoute } from './navigation/router'
 import { today } from './utils/date'
+import './styles/App.css'
 
 const App = () => {
-  const [view, setView] = useState<'scoreboard' | 'standings' | 'stats'>('scoreboard')
-  const [selectedDate, setSelectedDate] = useState(today)
-  const [selectedGame, setSelectedGame] = useState<Game | null>(null)
+  const route = useAppRoute()
 
-  const { data, error, isPending } = useScoreboard(selectedDate, view === 'scoreboard' && !selectedGame)
+  useEffect(() => {
+    const previous = window.history.scrollRestoration
+    window.history.scrollRestoration = 'manual'
+    return () => { window.history.scrollRestoration = previous }
+  }, [])
 
-  return (
-    <main>
-      <SiteHeader />
-      {selectedGame ? (
-        <GameDetails game={selectedGame} selectedDate={selectedDate} onBack={() => setSelectedGame(null)} />
-      ) : (
-        <>
-          <div className="scoreboard-bar view-bar">
-            <nav className="view-tabs" aria-label="NBA views">
-              <button type="button" aria-pressed={view === 'scoreboard'} onClick={() => setView('scoreboard')}>GAMES</button>
-              <button type="button" aria-pressed={view === 'standings'} onClick={() => setView('standings')}>STANDINGS</button>
-              <button type="button" aria-pressed={view === 'stats'} onClick={() => setView('stats')}>STATS</button>
-            </nav>
-            {view === 'scoreboard' && <DatePicker selectedDate={selectedDate} onDateChange={setSelectedDate} />}
-          </div>
-          {view === 'scoreboard' && data && error && <p className="notice" role="alert">Unable to refresh scores. Showing cached results. {error.message}</p>}
-          {view === 'stats' ? <StatsView /> : view === 'standings' ? <StandingsView /> : <ScoreboardView
-          data={data ?? null}
-          loading={isPending}
-          error={data ? '' : error?.message ?? ''}
-          onSelectGame={setSelectedGame}
-        />}
-        </>
-      )}
-    </main>
-  )
+  useEffect(() => {
+    window.scrollTo(0, window.history.state?.returnScroll ?? 0)
+  }, [route.key])
+
+  let content
+  switch (route.type) {
+    case 'player':
+      content = <PlayerProfile key={`player-${route.id}`} id={route.id} />
+      break
+    case 'team':
+      content = <TeamProfile key={`team-${route.id}`} id={route.id} />
+      break
+    case 'game':
+      content = <GamePage id={route.id} date={route.date} />
+      break
+    default:
+      content = <BrowseView route={route} />
+  }
+
+  return <main>
+    <SiteHeader onHome={route.type !== 'games' || route.date !== today() ? () => navigate('#') : undefined} />
+    {content}
+  </main>
 }
 
 export default App

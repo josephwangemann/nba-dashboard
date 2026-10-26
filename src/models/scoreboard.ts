@@ -1,5 +1,5 @@
 type Team = { teamId: number; teamName: string; teamCity: string; score: number }
-export type Game = { gameId: string; gameStatusText: string; venue: string; homeTeam: Team; awayTeam: Team }
+export type Game = { gameId: string; state: string; gameStatusText: string; venue: string; homeTeam: Team; awayTeam: Team }
 export type Scoreboard = {
   gameDate: string
   games: Game[]
@@ -15,7 +15,7 @@ type Feed = {
   events: {
     id: string
     date: string
-    status: { type: { name: string; detail: string } }
+    status: { type: { name: string; detail: string; state?: string } }
     competitions: {
       competitors: Competitor[]
       venue?: { fullName?: string; address?: { city?: string; state?: string } }
@@ -23,7 +23,7 @@ type Feed = {
   }[]
 }
 
-export function parseScoreboard(value: unknown, selectedDate?: string): Scoreboard {
+export const parseScoreboard = (value: unknown, selectedDate?: string): Scoreboard => {
   const feed = value as Feed
   const gameDate = selectedDate ?? feed?.day?.date
   if (!gameDate || !Array.isArray(feed?.events)) throw new Error('Unexpected scoreboard response')
@@ -50,6 +50,7 @@ export function parseScoreboard(value: unknown, selectedDate?: string): Scoreboa
       }
       return {
         gameId: event.id,
+        state: event.status.type.state ?? (event.status.type.name === 'STATUS_SCHEDULED' ? 'pre' : ''),
         venue: [venue?.fullName, location].filter(Boolean).join(' · '),
         gameStatusText: event.status.type.name === 'STATUS_SCHEDULED' && Number.isFinite(Date.parse(event.date))
           ? localTime.format(new Date(event.date))

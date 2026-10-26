@@ -1,3 +1,4 @@
+import { fetchJson } from './client'
 import { parseLeaders, parseExtraLeaders } from '../models/leaders'
 import { ACTIVE_TTL, parseSchedule, scheduleDates, standingsFreshness, type Freshness } from './standingsFreshness'
 import { QueryClient, useQuery } from '@tanstack/react-query'
@@ -15,12 +16,6 @@ export const queryClient = new QueryClient({
   },
 })
 
-const fetchJson = async (url: string, signal: AbortSignal, label: string): Promise<unknown> => {
-  const response = await fetch(url, { signal })
-  if (!response.ok) throw new Error(`${label} request failed (${response.status})`)
-  return response.json()
-}
-
 export const useScoreboard = (date: string, enabled: boolean) => useQuery({
   queryKey: ['scoreboard', date],
   enabled,
@@ -31,15 +26,15 @@ export const useScoreboard = (date: string, enabled: boolean) => useQuery({
   ), date),
 })
 
-export const useBoxScore = (gameId: string) => useQuery({
+export const useGameSummary = (gameId: string) => useQuery({
   queryKey: ['boxScore', gameId],
   queryFn: async ({ signal }): Promise<Summary> => {
     const result = await fetchJson(
       `https://site.api.espn.com/apis/site/v2/sports/basketball/nba/summary?event=${encodeURIComponent(gameId)}`,
       signal,
-      'Box score',
+      'Game details',
     )
-    if (!result || typeof result !== 'object' || (!('header' in result) && !('boxscore' in result))) throw new Error('Unexpected box score response')
+    if (!result || typeof result !== 'object' || (!('header' in result) && !('boxscore' in result))) throw new Error('Unexpected game summary response')
     return result as Summary
   },
 })
@@ -63,7 +58,6 @@ const useScheduledQuery = <T,>(key: string, load: (signal: AbortSignal) => Promi
       freshness = standingsFreshness(days.flat(), Date.now(), previous?.freshness)
     } catch (error) {
       if (signal.aborted) throw error
-      // Schedule outages must not prevent league data from loading.
       freshness = { freshUntil: Date.now() + ACTIVE_TTL, finalIds: '', finalsObservedAt: Date.now() }
     }
     return { ...await load(signal), freshness }

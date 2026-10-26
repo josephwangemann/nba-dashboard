@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "test": "node --experimental-strip-types --test tests/*.test.mjs"
+    "test": "node --experimental-strip-types --test tests/*.test.mjs",
+    "start": "node --experimental-strip-types server/index.mjs"
   },
   "dependencies": {
     "@tanstack/query-sync-storage-persister": "^5.105.0",

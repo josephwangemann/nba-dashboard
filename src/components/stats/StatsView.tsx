@@ -1,3 +1,4 @@
+import ProfileLink from '../shared/ProfileLink'
 import { useLeaders } from '../../api/queries'
 
 const categoryLabels: Record<string, string> = {
@@ -39,8 +40,8 @@ const StatsView = () => {
             <caption className="sr-only">{categoryLabels[category.name] ?? category.label} leaders</caption>
             <thead><tr><th scope="col">PLAYER</th><th scope="col">TEAM</th><th scope="col">{category.abbreviation}</th></tr></thead>
             <tbody>{category.players.map((player, index) => <tr key={player.id}>
-              <th scope="row"><span className="standing-rank">{index + 1}</span>{player.name}</th>
-              <td>{player.team}</td><td className="leader-value">{player.value}</td>
+              <th scope="row"><span className="standing-rank">{index + 1}</span><ProfileLink type="player" id={player.id}>{player.name}</ProfileLink></th>
+              <td>{player.teamId ? <ProfileLink type="team" id={player.teamId}>{player.team}</ProfileLink> : player.team}</td><td className="leader-value">{player.value}</td>
             </tr>)}</tbody>
           </table>
         </div>}
