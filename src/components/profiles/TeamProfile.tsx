@@ -1,3 +1,4 @@
+import { useFavoriteTeams } from '../../preferences/useFavoriteTeams'
 import { useTeamProfile, useTeamRoster, useTeamSchedule } from '../../api/profiles'
 import ProfileLink from '../shared/ProfileLink'
 import ProfileHeader from './ProfileHeader'
@@ -8,6 +9,8 @@ const TeamProfile = ({ id }: Props) => {
   const { data, error } = useTeamProfile(id)
   const roster = useTeamRoster(id)
   const schedule = useTeamSchedule(id)
+  const { favoriteTeams, toggleFavorite } = useFavoriteTeams()
+  const isFavorite = favoriteTeams.includes(id)
   const team = data?.team
   return <section aria-label="Team profile">
     <ProfileHeader title="TEAM PROFILE" />
@@ -16,7 +19,15 @@ const TeamProfile = ({ id }: Props) => {
     {team && <>
       <div className="profile-hero">
         {team.logos?.[0]?.href && <img className="team-logo" src={team.logos[0].href} alt="" onError={event => { event.currentTarget.hidden = true }} />}
-        <div><h3 className="profile-name">{team.displayName}</h3><p>{team.standingSummary}</p></div>
+        <div className="profile-identity">
+          <div className="profile-title-row">
+            <h3 className="profile-name">{team.displayName}</h3>
+            <button type="button" className="favorite-team-button" aria-pressed={isFavorite} aria-label={`${isFavorite ? 'Remove' : 'Add'} ${team.displayName} ${isFavorite ? 'from' : 'to'} favorites`} onClick={() => toggleFavorite(id)}>
+              <span aria-hidden="true">{isFavorite ? '★' : '☆'}</span>
+            </button>
+          </div>
+          <p>{team.standingSummary}</p>
+        </div>
       </div>
       <dl className="profile-facts">{team.record?.items?.map(record => <div key={record.type}><dt>{record.description ?? record.type}</dt><dd>{record.summary ?? '—'}</dd></div>)}</dl>
       <h3 className="box-title">ROSTER</h3>

@@ -1,8 +1,10 @@
-export type Standing = { id: string; name: string; rank: number; wins: string; losses: string; percentage: string; gamesBehind: string; streak: string }
+import { getTeamLogo, type TeamBranding } from './teamLogo.ts'
+
+export type Standing = { id: string; name: string; logo?: string; rank: number; wins: string; losses: string; percentage: string; gamesBehind: string; streak: string }
 export type Standings = { season: string; conferences: { name: string; teams: Standing[] }[] }
 
 type Stat = { name?: string; value?: number; displayValue?: string }
-type Feed = { season?: { displayName?: string }; children?: { name?: string; standings?: { entries?: { team?: { id?: string; displayName?: string }; stats?: Stat[] }[] } }[] }
+type Feed = { season?: { displayName?: string }; children?: { name?: string; standings?: { entries?: { team?: TeamBranding & { id?: string; displayName?: string }; stats?: Stat[] }[] } }[] }
 
 export const parseStandings = (value: unknown): Standings => {
   const feed = value as Feed | null
@@ -18,6 +20,7 @@ export const parseStandings = (value: unknown): Standings => {
         return {
           id: entry.team.id,
           name: entry.team.displayName,
+          logo: getTeamLogo(entry.team),
           rank: stat('playoffSeed')?.value ?? 0,
           wins: display('wins'),
           losses: display('losses'),

@@ -1,4 +1,6 @@
-type Team = { teamId: number; teamName: string; teamCity: string; score: number }
+import { getTeamLogo, type TeamBranding } from './teamLogo.ts'
+
+type Team = { teamId: number; teamName: string; teamCity: string; score: number; logo?: string }
 export type Game = { gameId: string; state: string; gameStatusText: string; venue: string; homeTeam: Team; awayTeam: Team }
 export type Scoreboard = {
   gameDate: string
@@ -8,7 +10,7 @@ export type Scoreboard = {
 type Competitor = {
   homeAway: string
   score: string
-  team: { id: string; name: string; location: string }
+  team: TeamBranding & { id: string; name: string; location: string }
 }
 type Feed = {
   day?: { date: string }
@@ -46,6 +48,7 @@ export const parseScoreboard = (value: unknown, selectedDate?: string): Scoreboa
           teamName: competitor.team.name,
           teamCity: competitor.team.location,
           score: Number(competitor.score ?? 0),
+          logo: getTeamLogo(competitor.team),
         }
       }
       return {
