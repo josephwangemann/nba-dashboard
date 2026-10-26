@@ -1,7 +1,7 @@
 import { getTeamLogo, type TeamBranding } from './teamLogo.ts'
 
 type Team = { teamId: number; teamName: string; teamCity: string; score: number; logo?: string }
-export type Game = { gameId: string; state: string; gameStatusText: string; venue: string; homeTeam: Team; awayTeam: Team }
+export type Game = { gameId: string; state: string; startsAt?: number; statusName?: string; gameStatusText: string; venue: string; homeTeam: Team; awayTeam: Team }
 export type Scoreboard = {
   gameDate: string
   games: Game[]
@@ -53,11 +53,13 @@ export const parseScoreboard = (value: unknown, selectedDate?: string): Scoreboa
       }
       return {
         gameId: event.id,
+        startsAt: Date.parse(event.date),
+        statusName: event.status.type.name,
         state: event.status.type.state ?? (event.status.type.name === 'STATUS_SCHEDULED' ? 'pre' : ''),
         venue: [venue?.fullName, location].filter(Boolean).join(' · '),
         gameStatusText: event.status.type.name === 'STATUS_SCHEDULED' && Number.isFinite(Date.parse(event.date))
           ? localTime.format(new Date(event.date))
-          : event.status.type.detail,
+          : `${event.status.type.state === 'in' ? 'LIVE · ' : ''}${event.status.type.detail}`,
         homeTeam: team('home'),
         awayTeam: team('away'),
       }

@@ -29,7 +29,7 @@ export type TeamSchedule = { events: {
   name: string
   competitions?: {
     status?: { type?: { completed?: boolean; detail?: string } }
-    competitors?: { team: { id: string; displayName: string }; score?: { displayValue?: string }; homeAway?: string }[]
+    competitors?: { team: { id: string; displayName: string }; score?: { displayValue?: string }; homeAway?: string; winner?: boolean }[]
   }[]
 }[] }
 

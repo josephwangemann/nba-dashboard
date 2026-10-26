@@ -1,3 +1,6 @@
+import { updatedGame } from '../../models/boxScore'
+import { useGameSummary } from '../../api/queries'
+import TeamComparison from './TeamComparison'
 import TeamLogo from '../shared/TeamLogo'
 import { useFavoriteTeams } from '../../preferences/useFavoriteTeams'
 import ProfileLink from '../shared/ProfileLink'
@@ -7,8 +10,10 @@ import type { Game } from '../../models/scoreboard'
 
 type Props = { game: Game; selectedDate: string; onBack: () => void }
 
-const GameDetails = ({ game, selectedDate, onBack }: Props) => {
+const GameDetails = ({ game: initialGame, selectedDate, onBack }: Props) => {
   const { favoriteTeams } = useFavoriteTeams()
+  const { data: summary, error } = useGameSummary(initialGame.gameId)
+  const game = updatedGame(initialGame, summary)
   return (
     <section className="game-detail" aria-label="Game details">
       <div className="scoreboard-bar"><h2>GAME DETAILS</h2><button className="back-button" onClick={onBack}>← Back to scoreboard</button></div>
@@ -19,7 +24,12 @@ const GameDetails = ({ game, selectedDate, onBack }: Props) => {
         <div className="team-row"><span className="team-identity"><TeamLogo src={game.homeTeam.logo} size={40} /><span className="team-copy"><span className="team-city">HOME · {game.homeTeam.teamCity}</span><span className="team-name"><ProfileLink type="team" id={game.homeTeam.teamId}>{game.homeTeam.teamName}</ProfileLink>{favoriteTeams.includes(String(game.homeTeam.teamId)) && <span className="favorite-indicator" role="img" aria-label="Favorite team">★</span>}</span></span></span><strong>{game.homeTeam.score}</strong></div>
         <small><span className="game-status">{game.gameStatusText}</span><span className="game-venue">{game.venue || 'Venue to be announced'}</span></small>
       </div>
-      {game.state === 'pre' ? <Injuries key={game.gameId} game={game} /> : <BoxScore key={game.gameId} gameId={game.gameId} />}
+      {error && <p className="notice" role="alert">Unable to refresh game details. {error.message}</p>}
+      {!summary && !error && <p className="notice" role="status">Loading game details…</p>}
+      {summary && (game.state === 'pre' ? <Injuries game={game} summary={summary} /> : <>
+        <BoxScore summary={summary} />
+        <TeamComparison summary={summary} />
+      </>)}
     </section>
   )
 }

@@ -5,7 +5,7 @@ import GameDetails from './GameDetails'
 type Props = { id: string; date: string }
 
 const GamePage = ({ id, date }: Props) => {
-  const { data, error, isPending } = useScoreboard(date, true)
+  const { data, error, isPending } = useScoreboard(date, true, false)
   const game = data?.games.find(game => game.gameId === id)
   const onBack = () => goBack(`#/games?date=${date}`)
   if (game) return <GameDetails game={game} selectedDate={date} onBack={onBack} />

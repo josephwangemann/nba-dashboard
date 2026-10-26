@@ -1,20 +1,12 @@
 import ProfileLink from '../shared/ProfileLink'
-import { useGameSummary } from '../../api/queries'
+import type { Summary } from '../../models/boxScore'
 import type { Game } from '../../models/scoreboard'
-import BoxScore from './BoxScore'
 
-type Props = { game: Game }
+type Props = { game: Game; summary: Summary }
 
-const Injuries = ({ game }: Props) => {
-  const { data: summary, error } = useGameSummary(game.gameId)
-  if (error && !summary) return <p className="notice" role="alert">Unable to load injuries. {error.message}</p>
-  if (!summary) return <p className="notice" role="status">Loading injuries…</p>
-  const state = summary.header?.competitions?.[0]?.status?.type?.state
-  if (state && state !== 'pre') return <BoxScore gameId={game.gameId} />
-
+const Injuries = ({ game, summary }: Props) => {
   return <section aria-label="Injury report">
     <h3 className="box-title">INJURIES</h3>
-    {error && <p className="notice" role="alert">Unable to refresh injuries. Showing cached results. {error.message}</p>}
     {[game.awayTeam, game.homeTeam].map(team => {
       const report = summary.injuries?.find(entry => entry.team.id === String(team.teamId))
       return <section className="team-box" key={team.teamId}>

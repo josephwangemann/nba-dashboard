@@ -1,16 +1,13 @@
 import ProfileLink from '../shared/ProfileLink'
-import { useGameSummary } from '../../api/queries'
+import type { Summary } from '../../models/boxScore'
 
-const BoxScore = ({ gameId }: { gameId: string }) => {
-  const { data: summary, error } = useGameSummary(gameId)
+type Props = { summary: Summary }
 
-  if (error && !summary) return <p className="notice" role="alert">{error.message}</p>
-  if (!summary) return <p className="notice" role="status">Loading box score…</p>
+const BoxScore = ({ summary }: Props) => {
   const teams = summary.boxscore?.players?.filter(team => team.statistics.some(stats => stats.athletes?.length)) ?? []
   const competitors = [...(summary.header?.competitions?.[0]?.competitors ?? [])].sort((a, b) => (a.homeAway === 'away' ? 0 : 1) - (b.homeAway === 'away' ? 0 : 1))
   const periods = Math.max(0, ...competitors.map(team => team.linescores?.length ?? 0))
   return <section className="box-score" aria-label="Box score">
-    {error && <p className="notice" role="alert">Unable to refresh box score. Showing cached results. {error.message}</p>}
     {periods > 0 && <div className="stat-scroll" tabIndex={0} role="region" aria-label="Scoring by quarter">
       <table><caption className="sr-only">Scoring by quarter</caption><thead><tr><th scope="col">TEAM</th>{Array.from({ length: periods }, (_, index) => <th scope="col" key={index}>{index < 4 ? `Q${index + 1}` : `OT${index - 3}`}</th>)}<th scope="col">TOTAL</th></tr></thead>
         <tbody>{competitors.map(team => <tr key={team.team.id}><th scope="row"><ProfileLink type="team" id={team.team.id}>{team.team.displayName}</ProfileLink></th>{Array.from({ length: periods }, (_, index) => <td key={index}>{team.linescores?.[index]?.displayValue ?? '—'}</td>)}<td>{team.score}</td></tr>)}</tbody>

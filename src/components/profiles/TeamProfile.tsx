@@ -37,7 +37,7 @@ const TeamProfile = ({ id }: Props) => {
         {roster.data.coach?.length ? <p>Coach: {roster.data.coach.map(coach => [coach.firstName, coach.lastName].filter(Boolean).join(' ')).join(', ')}</p> : null}
         {roster.data.athletes.length ? <div className="stat-scroll" role="region" tabIndex={0} aria-label="Team roster"><table>
           <caption className="sr-only">{team.displayName} roster</caption>
-          <thead><tr><th scope="col">PLAYER</th><th scope="col">#</th><th scope="col">POS</th><th scope="col">AGE</th><th scope="col">HEIGHT</th></tr></thead>
+          <thead><tr><th scope="col"><span className="sr-only">Player</span></th><th scope="col">#</th><th scope="col">POS</th><th scope="col">AGE</th><th scope="col">HEIGHT</th></tr></thead>
           <tbody>{roster.data.athletes.map(player => <tr key={player.id}><th scope="row"><ProfileLink type="player" id={player.id}>{player.displayName}</ProfileLink></th><td>{player.jersey ?? '—'}</td><td>{player.position?.abbreviation ?? '—'}</td><td>{player.age ?? '—'}</td><td>{player.displayHeight ?? '—'}</td></tr>)}</tbody>
         </table></div> : <p className="notice">No roster available.</p>}
       </>}
@@ -51,12 +51,13 @@ const TeamProfile = ({ id }: Props) => {
           const competition = event.competitions?.[0]
           const opponent = competition?.competitors?.find(item => item.team.id !== id)
           const own = competition?.competitors?.find(item => item.team.id === id)
+          const result = own?.winner === true ? 'W' : own?.winner === false || opponent?.winner === true ? 'L' : ''
           const date = new Date(event.date)
           const validDate = Number.isFinite(date.getTime())
           return <tr key={event.id}>
             <th scope="row">{opponent ? <><span className="schedule-side">{own?.homeAway === 'home' ? 'vs ' : '@ '}</span><ProfileLink type="team" id={opponent.team.id}>{opponent.team.displayName}</ProfileLink></> : event.name}</th>
             <td>{validDate ? new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric' }).format(date) : '—'}</td>
-            <td>{competition?.status?.type?.completed ? `${own?.score?.displayValue ?? '—'} – ${opponent?.score?.displayValue ?? '—'}` : validDate ? new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' }).format(date) : competition?.status?.type?.detail ?? 'TBD'}</td>
+            <td>{competition?.status?.type?.completed ? `${result ? `${result} ` : ''}${own?.score?.displayValue ?? '—'} – ${opponent?.score?.displayValue ?? '—'}` : validDate ? new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' }).format(date) : competition?.status?.type?.detail ?? 'TBD'}</td>
           </tr>
         })}</tbody>
       </table></div> : <p className="notice">No schedule available.</p>)}

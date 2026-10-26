@@ -1,3 +1,4 @@
+import { parsePlayerGameLog } from '../models/playerGameLog'
 import { useQuery } from '@tanstack/react-query'
 import { fetchJson } from './client'
 import { parsePlayerOverview, parsePlayerProfile, parseRoster, parseTeamProfile, parseTeamSchedule } from '../models/profiles'
@@ -33,4 +34,10 @@ export const useTeamSchedule = (id: string) => useQuery({
   queryKey: ['teamSchedule', id],
   staleTime: 5 * 60 * 1000,
   queryFn: async ({ signal }) => parseTeamSchedule(await fetchJson(`${TEAMS}/${encodeURIComponent(id)}/schedule`, signal, 'Team schedule')),
+})
+
+export const usePlayerGameLog = (id: string) => useQuery({
+  queryKey: ['playerGameLog', id],
+  staleTime: 5 * 60 * 1000,
+  queryFn: async ({ signal }) => parsePlayerGameLog(await fetchJson(`${PLAYERS}/${encodeURIComponent(id)}/gamelog`, signal, 'Player recent games')),
 })

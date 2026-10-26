@@ -1,3 +1,5 @@
+import type { Game } from './scoreboard.ts'
+
 type Player = {
   athlete: { id: string; displayName: string; position?: { abbreviation: string } }
   starter?: boolean
@@ -16,8 +18,8 @@ export type Summary = {
       details?: { type?: string; detail?: string; side?: string }
     }[]
   }[]
-  boxscore?: { players?: TeamStats[] }
-  header?: { competitions: { status?: { type?: { state?: string } }; competitors: {
+  boxscore?: { players?: TeamStats[]; teams?: { team: { id: string; displayName: string }; statistics: { name: string; label?: string; displayValue?: string }[] }[] }
+  header?: { competitions: { date?: string; status?: { type?: { state?: string; name?: string; detail?: string; completed?: boolean } }; competitors: {
     homeAway: string
     team: { id: string; displayName: string }
     score: string
@@ -25,3 +27,21 @@ export type Summary = {
   }[] }[] }
 }
 
+export const updatedGame = (game: Game, summary?: Summary): Game => {
+  const competition = summary?.header?.competitions?.[0]
+  const status = competition?.status?.type
+  const state = status?.state ?? game.state
+  const score = (side: string, fallback: number) => {
+    const value = competition?.competitors.find(team => team.homeAway === side)?.score
+    return value !== undefined && value !== '' && Number.isFinite(Number(value)) ? Number(value) : fallback
+  }
+  return {
+    ...game,
+    state,
+    gameStatusText: status?.detail && (state !== 'pre' || status.name !== 'STATUS_SCHEDULED')
+      ? `${state === 'in' ? 'LIVE · ' : ''}${status.detail}`
+      : game.gameStatusText,
+    awayTeam: { ...game.awayTeam, score: score('away', game.awayTeam.score) },
+    homeTeam: { ...game.homeTeam, score: score('home', game.homeTeam.score) },
+  }
+}

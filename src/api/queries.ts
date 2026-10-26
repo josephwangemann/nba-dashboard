@@ -1,8 +1,9 @@
+import { gameRefreshInterval } from './liveUpdates'
 import { fetchJson } from './client'
 import { parseLeaders, parseExtraLeaders } from '../models/leaders'
 import { ACTIVE_TTL, parseSchedule, scheduleDates, standingsFreshness, type Freshness } from './standingsFreshness'
 import { QueryClient, useQuery } from '@tanstack/react-query'
-import { parseScoreboard } from '../models/scoreboard'
+import { parseScoreboard, type Scoreboard } from '../models/scoreboard'
 import { parseStandings } from '../models/standings'
 import type { Summary } from '../models/boxScore'
 
@@ -16,9 +17,11 @@ export const queryClient = new QueryClient({
   },
 })
 
-export const useScoreboard = (date: string, enabled: boolean) => useQuery({
+export const useScoreboard = (date: string, enabled: boolean, liveUpdates = true) => useQuery<Scoreboard>({
   queryKey: ['scoreboard', date],
   enabled,
+  staleTime: query => query.state.data?.games.length && query.state.data.games.every(game => game.state === 'post') ? Infinity : 30000,
+  refetchInterval: query => liveUpdates && query.state.data ? gameRefreshInterval(query.state.data.games) : false,
   queryFn: async ({ signal }) => parseScoreboard(await fetchJson(
     `https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=${date.replaceAll('-', '')}`,
     signal,
@@ -26,8 +29,14 @@ export const useScoreboard = (date: string, enabled: boolean) => useQuery({
   ), date),
 })
 
-export const useGameSummary = (gameId: string) => useQuery({
+export const useGameSummary = (gameId: string) => useQuery<Summary>({
   queryKey: ['boxScore', gameId],
+  staleTime: query => query.state.data?.header?.competitions?.[0]?.status?.type?.state === 'post' ? Infinity : 30000,
+  refetchInterval: query => {
+    const competition = query.state.data?.header?.competitions?.[0]
+    if (!competition) return false
+    return gameRefreshInterval([{ state: competition.status?.type?.state ?? '', statusName: competition.status?.type?.name, startsAt: Date.parse(competition.date ?? '') }])
+  },
   queryFn: async ({ signal }): Promise<Summary> => {
     const result = await fetchJson(
       `https://site.api.espn.com/apis/site/v2/sports/basketball/nba/summary?event=${encodeURIComponent(gameId)}`,

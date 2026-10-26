@@ -1,3 +1,4 @@
+import PlayerGameLog from './PlayerGameLog'
 import { usePlayerOverview, usePlayerProfile } from '../../api/profiles'
 import ProfileLink from '../shared/ProfileLink'
 import ProfileHeader from './ProfileHeader'
@@ -39,6 +40,7 @@ const PlayerProfile = ({ id }: Props) => {
           </table>
         </div>
       </>}
+      <PlayerGameLog id={id} />
     </>}
   </section>
 }
