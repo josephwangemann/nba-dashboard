@@ -1,5 +1,5 @@
 import BoxScore from './BoxScore'
-import type { Game } from '../scoreboard'
+import type { Game } from '../../models/scoreboard'
 
 type Props = { game: Game; selectedDate: string; onBack: () => void }
 

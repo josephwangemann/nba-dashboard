@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { ACTIVE_TTL, parseSchedule, scheduleDates, standingsFreshness } from '../src/standingsFreshness.ts'
+import { ACTIVE_TTL, parseSchedule, scheduleDates, standingsFreshness } from '../src/api/standingsFreshness.ts'
 import { QueryClient } from '@tanstack/react-query'
 import { persistQueryClientRestore, persistQueryClientSave } from '@tanstack/react-query-persist-client'
 import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister'

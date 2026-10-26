@@ -1,4 +1,4 @@
-import { useBoxScore } from '../queries'
+import { useBoxScore } from '../../api/queries'
 
 const BoxScore = ({ gameId }: { gameId: string }) => {
   const { data: summary, error } = useBoxScore(gameId)

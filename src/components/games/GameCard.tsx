@@ -1,4 +1,4 @@
-import type { Game } from '../scoreboard'
+import type { Game } from '../../models/scoreboard'
 
 type Props = { game: Game; onSelect: (game: Game) => void }
 

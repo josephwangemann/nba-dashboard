@@ -1,9 +1,9 @@
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
-import { persistOptions } from './queryPersistence'
-import { queryClient } from './queries'
+import { persistOptions } from './api/persistence'
+import { queryClient } from './api/queries'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import './index.css'
+import './styles/index.css'
 import App from './App.tsx'
 
 createRoot(document.getElementById('root')!).render(

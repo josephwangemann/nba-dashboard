@@ -1,5 +1,5 @@
 import GameCard from './GameCard'
-import type { Game, Scoreboard } from '../scoreboard'
+import type { Game, Scoreboard } from '../../models/scoreboard'
 
 type Props = {
   data: Scoreboard | null

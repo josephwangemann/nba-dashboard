@@ -12,11 +12,13 @@ A React + TypeScript app built with Vite for browsing NBA scores, schedules, and
 
 ## Project structure
 
-- `src/App.tsx` manages scoreboard loading, selected date, and navigation state.
-- UI components live in separate `.tsx` files under `src/components/`.
-- `src/scoreboard.ts` contains scoreboard types and response parsing.
-- `src/components/BoxScore.tsx` loads and displays individual game statistics.
-- `src/App.css` contains component styles; `src/index.css` contains global styles.
+- `src/App.tsx` manages selected date and navigation state; `src/main.tsx` wires up providers.
+- `src/api/` contains query hooks, persistent cache configuration, and schedule-aware freshness logic.
+- `src/models/` contains NBA data types and ESPN response parsers.
+- `src/components/` groups UI into `games/`, `standings/`, `stats/`, and `shared/`.
+- `src/styles/` contains component styles (`App.css`) and global styles (`index.css`).
+- `src/utils/` contains small shared utilities such as local date formatting.
+- `tests/` contains parser, cache policy, and persistence tests; run them with `npm test`.
 - `public/favicon.svg` is the browser tab icon.
 
 ## Conventions

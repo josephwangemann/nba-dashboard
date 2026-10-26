@@ -1,9 +1,9 @@
-import { parseLeaders, parseExtraLeaders } from './leaders'
+import { parseLeaders, parseExtraLeaders } from '../models/leaders'
 import { ACTIVE_TTL, parseSchedule, scheduleDates, standingsFreshness, type Freshness } from './standingsFreshness'
 import { QueryClient, useQuery } from '@tanstack/react-query'
-import { parseScoreboard } from './scoreboard'
-import { parseStandings } from './standings'
-import type { Summary } from './boxScore'
+import { parseScoreboard } from '../models/scoreboard'
+import { parseStandings } from '../models/standings'
+import type { Summary } from '../models/boxScore'
 
 export const queryClient = new QueryClient({
   defaultOptions: {

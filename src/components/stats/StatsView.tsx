@@ -1,4 +1,4 @@
-import { useLeaders } from '../queries'
+import { useLeaders } from '../../api/queries'
 
 const categoryLabels: Record<string, string> = {
   doubleDouble: 'Double Doubles',

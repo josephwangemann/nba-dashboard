@@ -1,4 +1,4 @@
-import { useStandings } from '../queries'
+import { useStandings } from '../../api/queries'
 
 const StandingsView = () => {
   const { data, error } = useStandings()

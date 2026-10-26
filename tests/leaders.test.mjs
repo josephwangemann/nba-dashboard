@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { parseLeaders } from '../src/leaders.ts'
+import { parseLeaders } from '../src/models/leaders.ts'
 
 const category = (name, value, displayValue) => ({ name, displayName: name, leaders: [{ athlete: { id: '1', displayName: 'Player' }, value, displayValue }] })
 
