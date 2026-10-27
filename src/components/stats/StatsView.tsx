@@ -2,16 +2,20 @@ import ProfileLink from '../shared/ProfileLink'
 import { useLeaders } from '../../api/queries'
 
 const categoryLabels: Record<string, string> = {
+  NBARating: 'Box Score Rating',
+  fieldGoalPercentage: 'Field Goal %',
+  '3PointPct': '3-pt field goal %',
+  '3PointsMadePerGame': '3-pointers per game',
   doubleDouble: 'Double Doubles',
   points: 'Total Points',
-  FreeThrowPct: 'Free Throw Percentage',
+  FreeThrowPct: 'Free Throw %',
 }
 
 const categoryOrder = [
   'pointsPerGame', 'assistsPerGame', 'reboundsPerGame', 'stealsPerGame', 'blocksPerGame',
-  'fieldGoalPercentage', 'FreeThrowPct', '3PointPct', 'PER', '3PointsMadePerGame',
+  'fieldGoalPercentage', 'FreeThrowPct', '3PointPct', '3PointsMadePerGame',
   'threePointFieldGoalsMade', 'doubleDouble', 'tripleDouble', 'minutesPerGame', 'foulsPerGame',
-  'points', 'NBARating', 'avgTurnovers',
+  'points', 'PER', 'NBARating', 'avgTurnovers',
 ]
 
 const StatsView = () => {

@@ -32,14 +32,14 @@ const BrowseView = ({ route }: Props) => {
   }
   return <>
     <div className="scoreboard-bar view-bar">
+      {route.type === 'games' && <DatePicker selectedDate={route.date} onDateChange={date => {
+        if (date !== route.date) navigate(`#/games?date=${date}`)
+      }} />}
       <nav className="view-tabs" aria-label="NBA views">
         {tabs.map(tab => <button key={tab} type="button" aria-pressed={route.type === tab} onClick={() => {
           if (route.type !== tab) navigate(`#/${tab}?date=${route.date}`)
         }}>{tab.toUpperCase()}</button>)}
       </nav>
-      {route.type === 'games' && <DatePicker selectedDate={route.date} onDateChange={date => {
-        if (date !== route.date) navigate(`#/games?date=${date}`)
-      }} />}
     </div>
     {content}
   </>
