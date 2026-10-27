@@ -15,7 +15,7 @@ const BoxScore = ({ summary }: Props) => {
     </div>}
     <h3 className="box-title">BOX SCORE</h3>
     {teams.length === 0 ? <p className="notice">Player stats will appear here when available.</p> : teams.map(team => <section className="team-box" key={team.team.id}>
-      <h4><ProfileLink type="team" id={team.team.id}>{team.team.displayName}</ProfileLink></h4>
+      <h4 className={`chart-team-${(summary.boxscore?.players?.findIndex(entry => entry.team.id === team.team.id) ?? 0) % 2}`}><ProfileLink type="team" id={team.team.id}>{team.team.displayName}</ProfileLink></h4>
       {team.statistics.filter(stats => stats.athletes?.length).map((stats, index) => <div className="stat-scroll" tabIndex={0} role="region" aria-label={`${team.team.displayName} player statistics`} key={index}>
         <table><caption className="sr-only">{team.team.displayName} player statistics</caption>
           <thead><tr><th scope="col">PLAYER</th>{stats.labels.map((label, i) => <th scope="col" key={i} title={stats.descriptions?.[i]}>{label}</th>)}</tr></thead>

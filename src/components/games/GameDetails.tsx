@@ -5,6 +5,7 @@ import TeamLogo from '../shared/TeamLogo'
 import { useFavoriteTeams } from '../../preferences/useFavoriteTeams'
 import ProfileLink from '../shared/ProfileLink'
 import BoxScore from './BoxScore'
+import PlayerComparison from './PlayerComparison'
 import Injuries from './Injuries'
 import type { Game } from '../../models/scoreboard'
 
@@ -29,6 +30,7 @@ const GameDetails = ({ game: initialGame, selectedDate, onBack }: Props) => {
       {summary && (game.state === 'pre' ? <Injuries game={game} summary={summary} /> : <>
         <BoxScore summary={summary} />
         <TeamComparison summary={summary} />
+        <PlayerComparison summary={summary} game={game} />
       </>)}
     </section>
   )
