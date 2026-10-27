@@ -10,7 +10,7 @@ const GamePage = ({ id, date }: Props) => {
   const onBack = () => goBack(`#/games?date=${date}`)
   if (game) return <GameDetails game={game} selectedDate={date} onBack={onBack} />
   return <>
-    <button className="back-button" onClick={onBack}>← Back to games</button>
+    <button className="back-button" onClick={onBack}>← Back</button>
     <p className="notice" role={error ? 'alert' : 'status'}>{isPending ? 'Loading game…' : error?.message ?? 'Game not found for this date.'}</p>
   </>
 }

@@ -21,8 +21,7 @@ A React + TypeScript app built with Vite for browsing NBA scores, schedules, and
 - `src/navigation/` handles shareable tab, date, game, and profile routes and browser history.
 - `src/components/profiles/` contains player and team profile views.
 - `server/` serves the production build and proxies ESPN team endpoints; Vite uses the same proxy during development and preview.
-- `src/preferences/` stores local favorite teams and game ordering helpers.
-- `src/utils/` contains small shared utilities such as local date formatting.
+- `src/utils/` contains shared utilities, local date formatting, favorite team persistence, and game ordering helpers.
 - `tests/` contains parser, cache policy, and persistence tests; run them with `npm test`.
 - `public/favicon.svg` is the browser tab icon.
 

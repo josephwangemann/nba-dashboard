@@ -1,5 +1,5 @@
-import { useFavoriteTeams } from '../../preferences/useFavoriteTeams'
-import { prioritizeFavoriteGames } from '../../preferences/favorites'
+import { useFavoriteTeams } from '../../utils/useFavoriteTeams'
+import { prioritizeFavoriteGames } from '../../utils/favorites'
 import GameCard from './GameCard'
 import type { Game, Scoreboard } from '../../models/scoreboard'
 

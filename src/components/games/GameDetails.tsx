@@ -2,7 +2,7 @@ import { updatedGame } from '../../models/boxScore'
 import { useGameSummary } from '../../api/queries'
 import TeamComparison from './TeamComparison'
 import TeamLogo from '../shared/TeamLogo'
-import { useFavoriteTeams } from '../../preferences/useFavoriteTeams'
+import { useFavoriteTeams } from '../../utils/useFavoriteTeams'
 import ProfileLink from '../shared/ProfileLink'
 import BoxScore from './BoxScore'
 import PlayerComparison from './PlayerComparison'
@@ -17,7 +17,7 @@ const GameDetails = ({ game: initialGame, selectedDate, onBack }: Props) => {
   const game = updatedGame(initialGame, summary)
   return (
     <section className="game-detail" aria-label="Game details">
-      <div className="scoreboard-bar"><h2>GAME DETAILS</h2><button className="back-button" onClick={onBack}>← Back to scoreboard</button></div>
+      <div className="scoreboard-bar"><h2>GAME DETAILS</h2><button className="back-button" onClick={onBack}>← Back</button></div>
       <h3 className="detail-matchup">{game.awayTeam.teamCity} {game.awayTeam.teamName} at {game.homeTeam.teamCity} {game.homeTeam.teamName}</h3>
       <p className="detail-date">{new Intl.DateTimeFormat(undefined, { dateStyle: 'long' }).format(new Date(`${selectedDate}T12:00:00`))}</p>
       <div className="detail-score">

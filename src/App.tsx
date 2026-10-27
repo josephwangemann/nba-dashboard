@@ -5,8 +5,24 @@ import PlayerProfile from './components/profiles/PlayerProfile'
 import SiteHeader from './components/shared/SiteHeader'
 import TeamProfile from './components/profiles/TeamProfile'
 import { navigate, useAppRoute } from './navigation/router'
+import type { AppRoute } from './navigation/routes'
 import { today } from './utils/date'
 import './styles/App.css'
+
+type RouteContentProps = { route: AppRoute }
+
+const RouteContent = ({ route }: RouteContentProps) => {
+  switch (route.type) {
+    case 'player':
+      return <PlayerProfile key={`player-${route.id}`} id={route.id} />
+    case 'team':
+      return <TeamProfile key={`team-${route.id}`} id={route.id} />
+    case 'game':
+      return <GamePage id={route.id} date={route.date} />
+    default:
+      return <BrowseView route={route} />
+  }
+}
 
 const App = () => {
   const route = useAppRoute()
@@ -21,24 +37,9 @@ const App = () => {
     window.scrollTo(0, window.history.state?.returnScroll ?? 0)
   }, [route.key])
 
-  let content
-  switch (route.type) {
-    case 'player':
-      content = <PlayerProfile key={`player-${route.id}`} id={route.id} />
-      break
-    case 'team':
-      content = <TeamProfile key={`team-${route.id}`} id={route.id} />
-      break
-    case 'game':
-      content = <GamePage id={route.id} date={route.date} />
-      break
-    default:
-      content = <BrowseView route={route} />
-  }
-
   return <main>
     <SiteHeader onHome={route.type !== 'games' || route.date !== today() ? () => navigate('#') : undefined} />
-    {content}
+    <RouteContent route={route} />
   </main>
 }
 

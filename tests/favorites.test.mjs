@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { parseFavoriteTeams, prioritizeFavoriteGames } from '../src/preferences/favorites.ts'
+import { parseFavoriteTeams, prioritizeFavoriteGames } from '../src/utils/favorites.ts'
 
 const game = (id, home, away) => ({ id, homeTeam: { teamId: home }, awayTeam: { teamId: away } })
 

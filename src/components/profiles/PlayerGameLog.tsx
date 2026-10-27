@@ -14,7 +14,11 @@ const PlayerGameLog = ({ id }: Props) => {
         <thead><tr><th scope="col">DATE</th><th scope="col">OPPONENT</th><th scope="col">RESULT</th><th scope="col">MIN</th><th scope="col">PTS</th><th scope="col">REB</th><th scope="col">AST</th></tr></thead>
         <tbody>{data.map(game => {
           const href = `#/game/${game.id}?date=${game.scheduleDate}`
-          return <tr key={game.id}>
+          return <tr key={game.id} className="schedule-game-row" onClick={event => {
+            if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
+            if (event.target instanceof Element && event.target.closest('a')) return
+            navigate(href)
+          }}>
             <th scope="row"><a className="profile-link" href={href} aria-label={`View game against ${game.opponent} on ${new Date(game.date).toLocaleDateString()}`} onClick={event => {
               if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
               event.preventDefault()

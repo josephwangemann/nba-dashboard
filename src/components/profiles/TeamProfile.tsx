@@ -1,7 +1,9 @@
-import { useFavoriteTeams } from '../../preferences/useFavoriteTeams'
+import { useFavoriteTeams } from '../../utils/useFavoriteTeams'
 import { useTeamProfile, useTeamRoster, useTeamSchedule } from '../../api/profiles'
 import ProfileLink from '../shared/ProfileLink'
 import ProfileHeader from './ProfileHeader'
+import { navigate } from '../../navigation/router'
+import { nbaScheduleDate } from '../../utils/date'
 
 type Props = { id: string }
 
@@ -54,10 +56,20 @@ const TeamProfile = ({ id }: Props) => {
           const result = own?.winner === true ? 'W' : own?.winner === false || opponent?.winner === true ? 'L' : ''
           const date = new Date(event.date)
           const validDate = Number.isFinite(date.getTime())
-          return <tr key={event.id}>
+          const href = validDate && /^\d+$/.test(event.id) ? `#/game/${event.id}?date=${nbaScheduleDate(date)}` : undefined
+          const resultOrTime = competition?.status?.type?.completed ? `${result ? `${result} ` : ''}${own?.score?.displayValue ?? '—'} – ${opponent?.score?.displayValue ?? '—'}` : validDate ? new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' }).format(date) : competition?.status?.type?.detail ?? 'TBD'
+          return <tr key={event.id} className={href ? 'schedule-game-row' : undefined} onClick={click => {
+            if (!href || click.button !== 0 || click.metaKey || click.ctrlKey || click.shiftKey || click.altKey) return
+            if (click.target instanceof Element && click.target.closest('a')) return
+            navigate(href)
+          }}>
             <th scope="row">{opponent ? <><span className="schedule-side">{own?.homeAway === 'home' ? 'vs ' : '@ '}</span><ProfileLink type="team" id={opponent.team.id}>{opponent.team.displayName}</ProfileLink></> : event.name}</th>
             <td>{validDate ? new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric' }).format(date) : '—'}</td>
-            <td>{competition?.status?.type?.completed ? `${result ? `${result} ` : ''}${own?.score?.displayValue ?? '—'} – ${opponent?.score?.displayValue ?? '—'}` : validDate ? new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' }).format(date) : competition?.status?.type?.detail ?? 'TBD'}</td>
+            <td>{href ? <a className="profile-link" href={href} aria-label={`View ${event.name} game details: ${resultOrTime}`} onClick={click => {
+              if (click.button !== 0 || click.metaKey || click.ctrlKey || click.shiftKey || click.altKey) return
+              click.preventDefault()
+              navigate(href)
+            }}>{resultOrTime}</a> : resultOrTime}</td>
           </tr>
         })}</tbody>
       </table></div> : <p className="notice">No schedule available.</p>)}

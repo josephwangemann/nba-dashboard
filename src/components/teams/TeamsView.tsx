@@ -1,5 +1,5 @@
 import TeamLogo from '../shared/TeamLogo'
-import { useFavoriteTeams } from '../../preferences/useFavoriteTeams'
+import { useFavoriteTeams } from '../../utils/useFavoriteTeams'
 import { useStandings } from '../../api/queries'
 import ProfileLink from '../shared/ProfileLink'
 
