@@ -7,6 +7,8 @@ import ProfileLink from '../shared/ProfileLink'
 import BoxScore from './BoxScore'
 import PlayerComparison from './PlayerComparison'
 import Injuries from './Injuries'
+import Broadcasts from './Broadcasts'
+import HeadToHead from './HeadToHead'
 import type { Game } from '../../models/scoreboard'
 
 type Props = { game: Game; selectedDate: string; onBack: () => void }
@@ -25,6 +27,7 @@ const GameDetails = ({ game: initialGame, selectedDate, onBack }: Props) => {
         <div className="team-row"><span className="team-identity"><TeamLogo src={game.homeTeam.logo} size={40} /><span className="team-copy"><span className="team-city">HOME · {game.homeTeam.teamCity}</span><span className="team-name"><ProfileLink type="team" id={game.homeTeam.teamId}>{game.homeTeam.teamName}</ProfileLink>{favoriteTeams.includes(String(game.homeTeam.teamId)) && <span className="favorite-indicator" role="img" aria-label="Favorite team">★</span>}</span></span></span><strong>{game.homeTeam.score}</strong></div>
         <small><span className="game-status">{game.gameStatusText}</span><span className="game-venue">{game.venue || 'Venue to be announced'}</span></small>
       </div>
+      <Broadcasts game={game} />
       {error && <p className="notice" role="alert">Unable to refresh game details. {error.message}</p>}
       {!summary && !error && <p className="notice" role="status">Loading game details…</p>}
       {summary && (game.state === 'pre' ? <Injuries game={game} summary={summary} /> : <>
@@ -32,6 +35,7 @@ const GameDetails = ({ game: initialGame, selectedDate, onBack }: Props) => {
         <TeamComparison summary={summary} />
         <PlayerComparison summary={summary} game={game} />
       </>)}
+      {summary && <HeadToHead summary={summary} gameId={game.gameId} />}
     </section>
   )
 }

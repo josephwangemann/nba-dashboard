@@ -1,7 +1,7 @@
 import { getTeamLogo, type TeamBranding } from './teamLogo.ts'
 
 type Team = { teamId: number; teamName: string; teamCity: string; score: number; logo?: string }
-export type Game = { gameId: string; state: string; startsAt?: number; statusName?: string; gameStatusText: string; venue: string; homeTeam: Team; awayTeam: Team }
+export type Game = { gameId: string; state: string; startsAt?: number; statusName?: string; gameStatusText: string; venue: string; homeTeam: Team; awayTeam: Team; broadcasts?: { market: string; names: string[] }[] }
 export type Scoreboard = {
   gameDate: string
   games: Game[]
@@ -21,6 +21,7 @@ type Feed = {
     competitions: {
       competitors: Competitor[]
       venue?: { fullName?: string; address?: { city?: string; state?: string } }
+      broadcasts?: { market?: string; names?: string[] }[]
     }[]
   }[]
 }
@@ -57,6 +58,10 @@ export const parseScoreboard = (value: unknown, selectedDate?: string): Scoreboa
         statusName: event.status.type.name,
         state: event.status.type.state ?? (event.status.type.name === 'STATUS_SCHEDULED' ? 'pre' : ''),
         venue: [venue?.fullName, location].filter(Boolean).join(' · '),
+        broadcasts: (event.competitions[0]?.broadcasts ?? []).flatMap(broadcast => {
+          const names = [...new Set((broadcast.names ?? []).filter(name => typeof name === 'string' && name.trim()).map(name => name.trim()))]
+          return names.length ? [{ market: broadcast.market ?? '', names }] : []
+        }),
         gameStatusText: event.status.type.name === 'STATUS_SCHEDULED' && Number.isFinite(Date.parse(event.date))
           ? localTime.format(new Date(event.date))
           : `${event.status.type.state === 'in' ? 'LIVE · ' : ''}${event.status.type.detail}`,

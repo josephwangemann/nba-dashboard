@@ -48,6 +48,11 @@ small { display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px 10px; pa
 .detail-score { margin-top: 20px; border: 3px solid #080812; background: #242037; box-shadow: 6px 6px 0 #080812; }
 .date-picker, .back-button { height: 44px; display: inline-flex; align-items: center; }
 .box-score { margin-top: 30px; }
+.game-broadcasts { margin-top: 20px; padding: 16px; border: 2px solid #625571; background: #242037; }
+.game-broadcasts h3 { margin: 0 0 14px; color: #1dd3b0; font-size: 14px; letter-spacing: 1px; }
+.game-broadcasts dl { margin: 0; display: grid; gap: 12px; }
+.game-broadcasts dt { color: #bcb2ce; font-size: 11px; margin-bottom: 4px; }
+.game-broadcasts dd { margin: 0; font-size: 13px; line-height: 1.6; overflow-wrap: anywhere; }
 .player-chart-panel { padding: 18px; border: 3px solid #080812; background: #242037; box-shadow: 5px 5px 0 #080812; }
 .player-chart-toggles { display: flex; flex-wrap: wrap; gap: 8px; }
 .player-chart-toggles button { min-height: 44px; padding: 8px 12px; border: 2px solid #625571; background: #171329; color: #f7f0da; font: 700 12px 'Courier New', monospace; cursor: pointer; }
@@ -131,6 +136,10 @@ small { display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px 10px; pa
 .profile-facts dd { margin: 8px 0 0; font-weight: 900; line-height: 1.5; }
 .schedule-side { color: #bcb2ce; }
 .schedule-game-row { cursor: pointer; }
+.series-summary { margin: 0; padding: 14px 16px; color: #dfff65; font-size: 13px; line-height: 1.5; }
+.head-to-head { margin-top: 28px; }
+.head-to-head .current-matchup td, .head-to-head .current-matchup th { background: #35304b; }
+.head-to-head .matchup-venue { min-width: 180px; white-space: normal; text-align: left; line-height: 1.5; }
 @media (max-width: 640px) {
   .profile-hero { flex-direction: column; align-items: flex-start; gap: 12px; padding: 16px; }
   .player-headshot { width: 140px; height: 102px; }

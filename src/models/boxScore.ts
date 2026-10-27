@@ -1,4 +1,5 @@
 import type { Game } from './scoreboard.ts'
+import type { SeasonSeries } from './headToHead.ts'
 
 type Player = {
   athlete: { id: string; displayName: string; position?: { abbreviation: string } }
@@ -10,6 +11,7 @@ type Player = {
 type Stats = { labels: string[]; descriptions?: string[]; athletes: Player[]; totals?: string[] }
 type TeamStats = { team: { id: string; displayName: string }; statistics: Stats[] }
 export type Summary = {
+  seasonseries?: SeasonSeries[]
   injuries?: {
     team: { id: string; displayName: string }
     injuries?: {
