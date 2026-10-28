@@ -3,6 +3,7 @@ import { getTeamLogo, type TeamBranding } from './teamLogo.ts'
 type Team = { teamId: number; teamName: string; teamCity: string; score: number; logo?: string }
 export type Game = { gameId: string; state: string; startsAt?: number; statusName?: string; gameStatusText: string; venue: string; homeTeam: Team; awayTeam: Team; broadcasts?: { market: string; names: string[] }[] }
 export type Scoreboard = {
+  finalObservedAt?: number
   gameDate: string
   games: Game[]
 }

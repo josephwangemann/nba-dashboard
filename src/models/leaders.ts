@@ -1,8 +1,8 @@
 export type Leader = { id: string; name: string; team: string; teamId?: string; value: string }
-export type Leaders = { season: string; categories: { name: string; label: string; abbreviation: string; players: Leader[] }[] }
+export type Leaders = { season: string; seasonYear?: number; seasonType?: number; categories: { name: string; label: string; abbreviation: string; players: Leader[] }[] }
 
 type Feed = {
-  requestedSeason?: { displayName?: string }
+  requestedSeason?: { displayName?: string; year?: number; type?: { type?: number } }
   leaders?: { categories?: { name?: string; displayName?: string; abbreviation?: string; leaders?: {
     athlete?: { id?: string; displayName?: string }
     team?: { id?: string; abbreviation?: string }
@@ -23,6 +23,8 @@ export const parseLeaders = (value: unknown): Leaders => {
   if (!Array.isArray(feed?.leaders?.categories)) throw new Error('Unexpected stats response')
   return {
     season: feed.requestedSeason?.displayName ?? '',
+    seasonYear: feed.requestedSeason?.year,
+    seasonType: feed.requestedSeason?.type?.type,
     categories: feed.leaders.categories.map(category => {
       if (!category.name || !category.displayName) throw new Error('Missing stats category')
       return {

@@ -19,7 +19,7 @@ const categoryOrder = [
 ]
 
 const StatsView = () => {
-  const { data, error } = useLeaders()
+  const { data, error, extrasError } = useLeaders()
 
   if (error && !data) return <p className="notice" role="alert">{error.message}</p>
   if (!data) return <p className="notice" role="status">Loading stats…</p>
@@ -35,6 +35,7 @@ const StatsView = () => {
 
   return <section aria-label="Player stats leaders">
     {error && <p className="notice" role="alert">Unable to refresh stats. Showing cached results. {error.message}</p>}
+    {extrasError && <p className="notice" role="status">Some additional statistics are temporarily unavailable.</p>}
     <p className="standings-season">{data.season} REGULAR SEASON · PLAYER LEADERS</p>
     <div className="stats-grid">
       {categories.map(category => <section className="team-box standings-conference" key={category.name}>

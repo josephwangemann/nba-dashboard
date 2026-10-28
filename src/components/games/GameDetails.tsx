@@ -1,5 +1,5 @@
 import { updatedGame } from '../../models/boxScore'
-import { useGameSummary } from '../../api/queries'
+import type { Summary } from '../../models/boxScore'
 import TeamComparison from './TeamComparison'
 import TeamLogo from '../shared/TeamLogo'
 import { useFavoriteTeams } from '../../utils/useFavoriteTeams'
@@ -9,17 +9,17 @@ import PlayerComparison from './PlayerComparison'
 import Injuries from './Injuries'
 import Broadcasts from './Broadcasts'
 import HeadToHead from './HeadToHead'
+import BackButton from '../shared/BackButton'
 import type { Game } from '../../models/scoreboard'
 
-type Props = { game: Game; selectedDate: string; onBack: () => void }
+type Props = { game: Game; selectedDate: string; onBack: () => void; summary?: Summary; error?: Error | null }
 
-const GameDetails = ({ game: initialGame, selectedDate, onBack }: Props) => {
+const GameDetails = ({ game: initialGame, selectedDate, onBack, summary, error }: Props) => {
   const { favoriteTeams } = useFavoriteTeams()
-  const { data: summary, error } = useGameSummary(initialGame.gameId)
   const game = updatedGame(initialGame, summary)
   return (
     <section className="game-detail" aria-label="Game details">
-      <div className="scoreboard-bar"><button className="back-button" onClick={onBack}>← Back</button><h2>GAME DETAILS</h2></div>
+      <div className="scoreboard-bar"><BackButton onClick={onBack} /><h2>GAME DETAILS</h2></div>
       <h3 className="detail-matchup">{game.awayTeam.teamCity} {game.awayTeam.teamName} at {game.homeTeam.teamCity} {game.homeTeam.teamName}</h3>
       <p className="detail-date">{new Intl.DateTimeFormat(undefined, { dateStyle: 'long' }).format(new Date(`${selectedDate}T12:00:00`))}</p>
       <div className="detail-score">

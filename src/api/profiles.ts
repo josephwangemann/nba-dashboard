@@ -4,7 +4,7 @@ import { fetchJson } from './client'
 import { parsePlayerOverview, parsePlayerProfile, parseRoster, parseTeamProfile, parseTeamSchedule } from '../models/profiles'
 
 const TEAMS = '/api/teams'
-const PLAYERS = 'https://site.web.api.espn.com/apis/common/v3/sports/basketball/nba/athletes'
+const PLAYERS = '/api/players'
 
 export const usePlayerProfile = (id: string) => useQuery({
   queryKey: ['player', id],
@@ -39,5 +39,5 @@ export const useTeamSchedule = (id: string) => useQuery({
 export const usePlayerGameLog = (id: string) => useQuery({
   queryKey: ['playerGameLog', id],
   staleTime: 5 * 60 * 1000,
-  queryFn: async ({ signal }) => parsePlayerGameLog(await fetchJson(`${PLAYERS}/${encodeURIComponent(id)}/gamelog`, signal, 'Player recent games')),
+  queryFn: async ({ signal }) => parsePlayerGameLog(await fetchJson(`https://site.web.api.espn.com/apis/common/v3/sports/basketball/nba/athletes/${encodeURIComponent(id)}/gamelog`, signal, 'Player recent games')),
 })

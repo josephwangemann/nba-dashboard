@@ -1,94 +1,83 @@
+import { useMemo } from 'react'
+import { useQueries, useQuery, useQueryClient } from '@tanstack/react-query'
 import { gameRefreshInterval } from './liveUpdates'
 import { fetchJson } from './client'
-import { parseLeaders, parseExtraLeaders } from '../models/leaders'
-import { ACTIVE_TTL, parseSchedule, scheduleDates, standingsFreshness, type Freshness } from './standingsFreshness'
-import { QueryClient, useQuery } from '@tanstack/react-query'
-import { parseScoreboard, type Scoreboard } from '../models/scoreboard'
-import { parseStandings } from '../models/standings'
-import type { Summary } from '../models/boxScore'
+import { scoreboardOptions, summaryOptions } from './queryOptions'
+export { queryClient, scoreboardOptions, summaryOptions } from './queryOptions'
+import { ACTIVE_TTL, scheduleDates, standingsFreshness, type Freshness } from './standingsFreshness'
+import { finalFreshness } from './finalFreshness'
+import { parseStandingsData, parseLeadersData, parseLeaderCategory } from '../models/apiData'
+import type { Scoreboard } from '../models/scoreboard'
+import type { Leaders } from '../models/leaders'
 
-export const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 30 * 1000,
-      gcTime: 30 * 60 * 1000,
-      retry: 1,
-    },
-  },
-})
-
-export const useScoreboard = (date: string, enabled: boolean, liveUpdates = true) => useQuery<Scoreboard>({
-  queryKey: ['scoreboard', date],
-  enabled,
-  staleTime: query => query.state.data?.games.length && query.state.data.games.every(game => game.state === 'post') ? Infinity : 30000,
-  refetchInterval: query => liveUpdates && query.state.data ? gameRefreshInterval(query.state.data.games) : false,
-  queryFn: async ({ signal }) => parseScoreboard(await fetchJson(
-    `https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=${date.replaceAll('-', '')}`,
-    signal,
-    'NBA',
-  ), date),
-})
-
-export const useGameSummary = (gameId: string) => useQuery<Summary>({
-  queryKey: ['boxScore', gameId],
-  staleTime: query => query.state.data?.header?.competitions?.[0]?.status?.type?.state === 'post' ? Infinity : 30000,
+export const useScoreboard = (date: string, enabled: boolean, liveUpdates = true) => useQuery({
+  ...scoreboardOptions(date), enabled,
   refetchInterval: query => {
-    const competition = query.state.data?.header?.competitions?.[0]
-    if (!competition) return false
-    return gameRefreshInterval([{ state: competition.status?.type?.state ?? '', statusName: competition.status?.type?.name, startsAt: Date.parse(competition.date ?? '') }])
+    const data = query.state.data
+    if (!liveUpdates || !data) return false
+    return data.finalObservedAt !== undefined && finalFreshness(data.finalObservedAt) === 30000 ? 30000 : gameRefreshInterval(data.games)
   },
-  queryFn: async ({ signal }): Promise<Summary> => {
-    const result = await fetchJson(
-      `https://site.api.espn.com/apis/site/v2/sports/basketball/nba/summary?event=${encodeURIComponent(gameId)}`,
-      signal,
-      'Game details',
-    )
-    if (!result || typeof result !== 'object' || (!('header' in result) && !('boxscore' in result))) throw new Error('Unexpected game summary response')
-    return result as Summary
+})
+
+export const useGameSummary = (gameId: string) => useQuery({
+  ...summaryOptions(gameId),
+  refetchInterval: query => {
+    const data = query.state.data
+    const competition = data?.header?.competitions[0]
+    if (!competition) return false
+    if (data?.finalObservedAt !== undefined && finalFreshness(data.finalObservedAt) === 30000) return 30000
+    return gameRefreshInterval([{ state: competition.status?.type?.state ?? '', statusName: competition.status?.type?.name, startsAt: Date.parse(competition.date ?? '') }])
   },
 })
 
 type CachedData<T> = T & { freshness: Freshness }
+const useScheduledQuery = <T,>(key: string, load: (signal: AbortSignal) => Promise<T>) => {
+  const client = useQueryClient()
+  const window = useQuery({ queryKey: ['scheduleWindow'], queryFn: () => scheduleDates(Date.now()),
+    initialData: () => scheduleDates(Date.now()), staleTime: 60000, refetchInterval: 60000 })
+  const dates = window.data.map(date => `${date.slice(0, 4)}-${date.slice(4, 6)}-${date.slice(6)}`)
+  // Schedule checks warm the shared cache independently of the screen's main query.
+  const schedules = useQueries({ queries: dates.map(date => ({
+    ...scoreboardOptions(date),
+    refetchInterval: (query: { state: { data?: Scoreboard } }) => {
+      const data = query.state.data
+      if (!data) return ACTIVE_TTL
+      if (data.finalObservedAt !== undefined && finalFreshness(data.finalObservedAt) === 30000) return 30000
+      return gameRefreshInterval(data.games) || 6 * 60 * 60 * 1000
+    },
+  })) })
+  const calculateFreshness = (): Freshness => {
+    const now = Date.now()
+    if (!schedules.every(query => query.data && !query.error)) return { freshUntil: now + ACTIVE_TTL, finalIds: '', finalsObservedAt: now }
+    const games = schedules.flatMap(query => query.data?.games ?? []).map(game => ({
+      id: game.gameId, startsAt: game.startsAt ?? 0, completed: game.state === 'post', state: game.state, name: game.statusName ?? '',
+    }))
+    return standingsFreshness(games, now, client.getQueryData<CachedData<T>>([key])?.freshness)
+  }
+  return useQuery<CachedData<T>>({
+    queryKey: [key], gcTime: 24 * 60 * 60 * 1000,
+    staleTime: query => Math.max(0, Math.min(calculateFreshness().freshUntil, query.state.data?.freshness.freshUntil ?? Infinity) - query.state.dataUpdatedAt),
+    refetchInterval: query => query.state.status === 'error' ? ACTIVE_TTL : Math.max(1000, Math.min(calculateFreshness().freshUntil, query.state.data?.freshness.freshUntil ?? Infinity) - Date.now()),
+    queryFn: async ({ signal }) => ({ ...await load(signal), freshness: calculateFreshness() }),
+  })
+}
+export const useStandings = () => useScheduledQuery('standings', async signal => parseStandingsData(await fetchJson('/api/standings', signal, 'Standings')))
 
-const useScheduledQuery = <T,>(key: string, load: (signal: AbortSignal) => Promise<T>) => useQuery<CachedData<T>>({
-  queryKey: [key],
-  staleTime: query => Math.max(0, (query.state.data?.freshness.freshUntil ?? 0) - query.state.dataUpdatedAt),
-  gcTime: 24 * 60 * 60 * 1000,
-  refetchInterval: query => query.state.status === 'error' ? ACTIVE_TTL : Math.max(1000, (query.state.data?.freshness.freshUntil ?? Date.now() + ACTIVE_TTL) - Date.now()),
-  queryFn: async ({ signal }): Promise<CachedData<T>> => {
-    const previous = queryClient.getQueryData<CachedData<T>>([key])
-    let freshness: Freshness
-    try {
-      const days = await Promise.all(scheduleDates(Date.now()).map(async date => parseSchedule(await fetchJson(
-        `https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=${date}`,
-        signal,
-        'Schedule',
-      ))))
-      freshness = standingsFreshness(days.flat(), Date.now(), previous?.freshness)
-    } catch (error) {
-      if (signal.aborted) throw error
-      freshness = { freshUntil: Date.now() + ACTIVE_TTL, finalIds: '', finalsObservedAt: Date.now() }
-    }
-    return { ...await load(signal), freshness }
-  },
-})
-
-export const useStandings = () => useScheduledQuery('standings', async signal => parseStandings(await fetchJson(
-  'https://site.api.espn.com/apis/v2/sports/basketball/nba/standings', signal, 'Standings',
-)))
-
-export const useLeaders = () => useScheduledQuery('leaders', async signal => {
-  const raw = await fetchJson('https://site.api.espn.com/apis/site/v3/sports/basketball/nba/leaders', signal, 'Stats')
-  const leaders = parseLeaders(raw)
-  const season = (raw as { requestedSeason?: { year?: number; type?: { type?: number } } }).requestedSeason
-  if (!season?.year || !season.type?.type) throw new Error('Missing stats season')
-  const extraCategories = await Promise.all([
-    { group: 'general', stat: 'tripleDouble', label: 'Triple Doubles', abbreviation: 'TD3' },
-    { group: 'offensive', stat: 'threePointFieldGoalsMade', label: 'Total 3-Pointers', abbreviation: '3PM' },
-  ].map(async category => {
-    const params = new URLSearchParams({ limit: '10', season: String(season.year), seasontype: String(season.type!.type), sort: `${category.group}.${category.stat}:desc` })
-    const result = await fetchJson(`https://site.web.api.espn.com/apis/common/v3/sports/basketball/nba/statistics/byathlete?${params}`, signal, category.label)
-    return parseExtraLeaders(result, category.group, category.stat, category.label, category.abbreviation)
-  }))
-  return { ...leaders, categories: [...leaders.categories.filter(category => !extraCategories.some(extra => extra.name === category.name)), ...extraCategories] }
-})
+export const useLeaders = () => {
+  const base = useScheduledQuery('leaders', async signal => parseLeadersData(await fetchJson('/api/leaders', signal, 'Stats')))
+  const year = base.data?.seasonYear
+  const seasonType = base.data?.seasonType
+  const extras = useQueries({ queries: ['tripleDouble', 'threePointFieldGoalsMade'].map(stat => ({
+    queryKey: ['extraLeaders', year, seasonType, stat], enabled: !!year && !!seasonType,
+    staleTime: ACTIVE_TTL, refetchInterval: ACTIVE_TTL,
+    queryFn: async ({ signal }: { signal: AbortSignal }) => parseLeaderCategory(await fetchJson(`/api/leaders/${year}/${seasonType}/${stat}`, signal, 'Additional stats')),
+  })) })
+  const triple = extras[0]?.data
+  const threes = extras[1]?.data
+  const data = useMemo(() => {
+    if (!base.data) return undefined
+    const additional: Leaders['categories'] = [triple, threes].filter(category => category !== undefined)
+    return { ...base.data, categories: [...base.data.categories.filter(category => !additional.some(extra => extra.name === category.name)), ...additional] }
+  }, [base.data, triple, threes])
+  return { ...base, data, extrasError: extras.some(query => query.error) }
+}

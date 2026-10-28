@@ -8,7 +8,7 @@ A React + TypeScript app built with Vite for browsing NBA scores, schedules, and
 - `npm run dev` — start the development server.
 - `npm run build` — type-check and build for production.
 - `npm run lint` — run Oxlint.
-- `npm start` — serve the production build and team API proxy (Node 22.6+).
+- `npm start` — serve the production build and ESPN API proxy (Node 22.6+).
 - `npm run preview` — preview the production build.
 
 ## Project structure
@@ -20,7 +20,7 @@ A React + TypeScript app built with Vite for browsing NBA scores, schedules, and
 - `src/styles/` contains component styles (`App.css`) and global styles (`index.css`).
 - `src/navigation/` handles shareable tab, date, game, and profile routes and browser history.
 - `src/components/profiles/` contains player and team profile views.
-- `server/` serves the production build and proxies ESPN team endpoints; Vite uses the same proxy during development and preview.
+- `server/` serves the production build and proxies and normalizes ESPN data with bounded shared caching; Vite uses the same proxy during development and preview.
 - `src/utils/` contains shared utilities, local date formatting, favorite team persistence, and game ordering helpers.
 - `tests/` contains parser, cache policy, and persistence tests; run them with `npm test`.
 - `public/favicon.svg` is the browser tab icon.

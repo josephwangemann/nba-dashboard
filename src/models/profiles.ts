@@ -1,3 +1,5 @@
+import { object, list, optional, text, identity, finite, boolean, position, teamIdentity, dateText } from './decode.ts'
+
 export type Athlete = {
   id: string
   displayName: string
@@ -33,31 +35,27 @@ export type TeamSchedule = { events: {
   }[]
 }[] }
 
-export const parsePlayerProfile = (value: unknown): PlayerProfile => {
-  const data = value as PlayerProfile | null
-  if (!data?.athlete?.id || !data.athlete.displayName) throw new Error('Unexpected player profile response')
-  return data
-}
-
-export const parseTeamProfile = (value: unknown): TeamProfile => {
-  const data = value as TeamProfile | null
-  if (!data?.team?.id || !data.team.displayName) throw new Error('Unexpected team profile response')
-  return data
-}
-
-export const parseRoster = (value: unknown): Roster => {
-  const data = value as Roster | null
-  if (!Array.isArray(data?.athletes)) throw new Error('Unexpected roster response')
-  return data
-}
-
-export const parseTeamSchedule = (value: unknown): TeamSchedule => {
-  const data = value as TeamSchedule | null
-  if (!Array.isArray(data?.events)) throw new Error('Unexpected team schedule response')
-  return data
-}
-
-export const parsePlayerOverview = (value: unknown): PlayerOverview => {
-  if (!value || typeof value !== 'object') throw new Error('Unexpected player stats response')
-  return value as PlayerOverview
-}
+const athlete = object({
+  id: identity, displayName: text, jersey: optional(text), age: optional(finite),
+  displayHeight: optional(text), displayWeight: optional(text), displayDOB: optional(text),
+  displayExperience: optional(text), displayDraft: optional(text),
+  college: optional(object({ name: optional(text) })), headshot: optional(object({ href: optional(text) })),
+  position: optional(position), team: optional(teamIdentity),
+})
+export const parsePlayerProfile: (value: unknown) => PlayerProfile = object({ athlete, season: optional(object({ displayName: optional(text) })) })
+export const parseTeamProfile: (value: unknown) => TeamProfile = object({ team: object({
+  id: identity, displayName: text, logos: optional(list(object({ href: text }))), standingSummary: optional(text),
+  record: optional(object({ items: optional(list(object({ type: text, description: optional(text), summary: optional(text) }))) })),
+}) })
+export const parseRoster: (value: unknown) => Roster = object({ athletes: list(athlete), coach: optional(list(object({ firstName: optional(text), lastName: optional(text) }))) })
+export const parseTeamSchedule: (value: unknown) => TeamSchedule = object({ events: list(object({
+  id: identity, date: dateText, name: text,
+  competitions: optional(list(object({
+    status: optional(object({ type: optional(object({ completed: optional(boolean), detail: optional(text) })) })),
+    competitors: optional(list(object({ team: teamIdentity, score: optional(object({ displayValue: optional(text) })), homeAway: optional(text), winner: optional(boolean) }))),
+  }))),
+})) })
+export const parsePlayerOverview: (value: unknown) => PlayerOverview = object({ statistics: optional(object({
+  labels: optional(list(text)), displayNames: optional(list(text)),
+  splits: optional(list(object({ displayName: text, stats: list(text) }))),
+})) })

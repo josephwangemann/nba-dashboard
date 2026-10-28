@@ -10,7 +10,7 @@ const DatePicker = ({ selectedDate, onDateChange }: Props) => {
     <div className="date-navigation" role="group" aria-label="Game date navigation">
       <button type="button" className="date-nav-button date-nav-arrow" aria-label="Previous day" onClick={() => onDateChange(shiftDate(selectedDate, -1))}>←</button>
       <label className="date-picker">
-        <span>{new Intl.DateTimeFormat(undefined, { month: 'long', day: 'numeric', ...(selectedDate.slice(0, 4) !== currentYear ? { year: 'numeric' } : {}) }).format(new Date(`${selectedDate}T12:00:00`))} <span aria-hidden="true">▾</span></span>
+        <span>{new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric', ...(selectedDate.slice(0, 4) !== currentYear ? { year: 'numeric' } : {}) }).format(new Date(`${selectedDate}T12:00:00`))} <span aria-hidden="true">▾</span></span>
         <input
           type="date"
           aria-label="Choose game date"

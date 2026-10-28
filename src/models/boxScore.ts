@@ -2,7 +2,7 @@ import type { Game } from './scoreboard.ts'
 import type { SeasonSeries } from './headToHead.ts'
 
 type Player = {
-  athlete: { id: string; displayName: string; position?: { abbreviation: string } }
+  athlete: { id: string; displayName: string; position?: { abbreviation?: string } }
   starter?: boolean
   didNotPlay?: boolean
   reason?: string
@@ -11,11 +11,13 @@ type Player = {
 type Stats = { labels: string[]; descriptions?: string[]; athletes: Player[]; totals?: string[] }
 type TeamStats = { team: { id: string; displayName: string }; statistics: Stats[] }
 export type Summary = {
+  finalObservedAt?: number
+  gameInfo?: { venue?: { fullName?: string; address?: { city?: string; state?: string } } }
   seasonseries?: SeasonSeries[]
   injuries?: {
     team: { id: string; displayName: string }
     injuries?: {
-      athlete: { id: string; displayName: string; position?: { abbreviation: string } }
+      athlete: { id: string; displayName: string; position?: { abbreviation?: string } }
       status?: string
       details?: { type?: string; detail?: string; side?: string }
     }[]
@@ -23,7 +25,7 @@ export type Summary = {
   boxscore?: { players?: TeamStats[]; teams?: { team: { id: string; displayName: string }; statistics: { name: string; label?: string; displayValue?: string }[] }[] }
   header?: { competitions: { date?: string; status?: { type?: { state?: string; name?: string; detail?: string; completed?: boolean } }; competitors: {
     homeAway: string
-    team: { id: string; displayName: string }
+    team: { id: string; displayName: string; name?: string; location?: string; logo?: string; logos?: { href: string; rel?: string[] }[] }
     score: string
     linescores?: { displayValue: string }[]
   }[] }[] }

@@ -41,8 +41,10 @@ small { display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px 10px; pa
 .game-card { display: block; width: 100%; padding: 0; border: 0; color: inherit; background: transparent; font: inherit; text-align: left; cursor: pointer; }
 .game-card:hover { background: #35304b; }
 .game-card:focus-visible, .back-button:focus-visible { outline: 3px solid #dfff65; outline-offset: 4px; }
-.back-button { flex-shrink: 0; padding: 9px 12px; border: 2px solid #080812; box-shadow: 3px 3px 0 #080812; background: #ff985b; color: #171329; font: 900 12px 'Courier New', monospace; cursor: pointer; }
+.back-button { flex-shrink: 0; justify-content: center; padding: 0 12px; border: 2px solid #080812; box-shadow: 3px 3px 0 #080812; background: #ff985b; color: #171329; font: 900 12px/1 'Courier New', monospace; cursor: pointer; }
 .back-button:hover { background: #ffb682; }
+.back-button { gap: 6px; }
+.back-button svg { display: block; flex-shrink: 0; }
 .detail-matchup { margin: 0 0 10px; font-family: Impact, 'Arial Narrow', sans-serif; font-size: clamp(24px, 4vw, 36px); font-weight: 400; text-transform: uppercase; }
 .detail-date { color: #bcb2ce; font-size: 13px; }
 .detail-score { margin-top: 20px; border: 3px solid #080812; background: #242037; box-shadow: 6px 6px 0 #080812; }
